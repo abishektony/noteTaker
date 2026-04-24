@@ -1,0 +1,1 @@
+export { signUpHandler, logInHandler } from './authControllers.js';

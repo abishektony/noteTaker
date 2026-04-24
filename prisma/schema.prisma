@@ -1,0 +1,72 @@
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Tags {
+    id Int @id @default(autoincrement())
+    name String @unique
+    createdAt DateTime @default(now()) @map("created_at")
+    notes NoteTag[]
+}
+
+model Notes {
+    id Int @id @default(autoincrement())
+    boardId Int @map("board_id")
+    content String 
+    y_pos Int 
+    x_pos Int 
+    color String @default("Black")
+    createdAt DateTime @default(now()) @map("created_at")
+    updatedAt DateTime @default(now()) @map("updated_at")
+    board Board @relation(fields: [boardId], references: [id], onDelete: Cascade)
+    tags NoteTag[]
+}
+
+model Board {
+    id Int @id @default(autoincrement())
+    title String
+    createdAt DateTime @default(now()) @map("created_at")
+    members BoardMember[]
+    notes Notes[]
+}
+
+model BoardMember {
+    id Int @id @default(autoincrement()) @map("member_id")
+    boardId Int @map("board_id")
+    userId Int @map("user_id")
+    role String
+    joinedAt DateTime @default(now()) @map("joined_at")
+    board Board @relation(fields: [boardId], references: [id], onDelete: Cascade)
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+    @@unique([boardId, userId])
+}
+
+model NoteTag {
+    id Int @id @default(autoincrement()) @map("note_tag_id")
+    noteId Int @map("note_id")
+    tagId Int @map("tag_id")
+    note Notes @relation(fields: [noteId], references: [id], onDelete: Cascade)
+    tag Tags @relation(fields: [tagId], references: [id], onDelete: Cascade)
+    @@unique([noteId, tagId])
+}
+
+model User {
+    id Int @id @default(autoincrement())
+    email String @unique
+    password String
+    role Role @default(USER)
+    createdAt DateTime @default(now()) @map("created_at")
+    boards BoardMember[]
+    @@map("users")
+}
+
+enum Role {
+  USER
+  ADMIN
+}

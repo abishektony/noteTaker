@@ -1,0 +1,876 @@
+openapi: 3.0.3
+
+info:
+  title: noteTaker API
+  version: 1.0.0
+  description: API for managing boards, notes, tags, users, and join tables.
+
+servers:
+  - url: http://localhost:8080/api
+
+tags:
+  - name: Auth
+    description: Authentication endpoints
+  - name: Boards
+    description: Board endpoints
+  - name: Notes
+    description: Note endpoints
+  - name: Tags
+    description: Tag endpoints
+  - name: Board Members
+    description: Join table for board members
+  - name: Note Tags
+    description: Join table for note-tag relationships
+
+paths:
+  /health:
+    get:
+      tags:
+        - Auth
+      summary: Health check
+      description: Check if the service is healthy.
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                example:
+                  status: 'UP'
+
+  /auth/signup:
+    post:
+      tags:
+        - Auth
+      summary: Register user
+      description: Creates a new user account.
+      requestBody:
+        description: User signup credentials
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthCredentials'
+      responses:
+        '201':
+          description: Sign up successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          $ref: '#/components/responses/InvalidUserInput'
+        '409':
+          description: Duplicate Email
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                example:
+                  error: 'Email has already been used'
+
+  /auth/login:
+    post:
+      tags:
+        - Auth
+      summary: Authenticate user
+      description: Authenticate a user and return an access token.
+      requestBody:
+        description: User login credentials
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthCredentials'
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  accessToken:
+                    type: string
+                example:
+                  accessToken: 'eyJhbadFfHfrACsadEAedsa'
+        '400':
+          $ref: '#/components/responses/InvalidUserInput'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                example:
+                  error: 'Invalid credentials'
+
+  /boards:
+    get:
+      tags:
+        - Boards
+      summary: List boards
+      description: Retrieve a list of all boards.
+      responses:
+        '200':
+          description: Boards returned successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Board'
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - Boards
+      summary: Create a board
+      description: Create a new board.
+      requestBody:
+        description: The board object to create.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Board'
+      responses:
+        '201':
+          description: Board created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Board'
+        '400':
+          $ref: '#/components/responses/InvalidInput'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /boards/{id}:
+    get:
+      tags:
+        - Boards
+      summary: Get a board by ID
+      description: Retrieve a single board by its ID.
+      parameters:
+        - $ref: '#/components/parameters/BoardId'
+      responses:
+        '200':
+          description: Board found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Board'
+        '400':
+          $ref: '#/components/responses/InvalidInput'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      security:
+        - bearerAuth: []
+      tags:
+        - Boards
+      summary: Update a board
+      description: Update a single board by its ID.
+      parameters:
+        - $ref: '#/components/parameters/BoardId'
+      requestBody:
+        description: Fields to update for the board.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Board'
+      responses:
+        '200':
+          description: Board updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Board'
+        '400':
+          $ref: '#/components/responses/InvalidInput'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      security:
+        - bearerAuth: []
+      tags:
+        - Boards
+      summary: Delete a board
+      description: Delete a single board by its ID.
+      parameters:
+        - $ref: '#/components/parameters/BoardId'
+      responses:
+        '204':
+          description: Board deleted successfully
+        '400':
+          $ref: '#/components/responses/InvalidId'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /boards/{id}/members:
+    get:
+      tags:
+        - Board Members
+      summary: List members for a board
+      description: Retrieve all members of a board.
+      parameters:
+        - $ref: '#/components/parameters/BoardId'
+      responses:
+        '200':
+          description: Board members returned successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        '400':
+          $ref: '#/components/responses/InvalidInput'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - Board Members
+      summary: Add a member to a board
+      description: Add a user as a member to a board.
+      parameters:
+        - $ref: '#/components/parameters/BoardId'
+      requestBody:
+        description: The board member to add.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BoardMember'
+      responses:
+        '201':
+          description: Board member created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BoardMember'
+        '400':
+          $ref: '#/components/responses/InvalidInput'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: User is already a member
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                example:
+                  error: 'User is already a member of this board'
+
+  /boards/{id}/members/{uid}:
+    delete:
+      security:
+        - bearerAuth: []
+      tags:
+        - Board Members
+      summary: Remove a member from a board
+      description: Remove a single member from a board.
+      parameters:
+        - $ref: '#/components/parameters/BoardId'
+        - $ref: '#/components/parameters/UserId'
+      responses:
+        '204':
+          description: Board member removed successfully
+        '400':
+          $ref: '#/components/responses/InvalidId'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /notes:
+    get:
+      tags:
+        - Notes
+      summary: List notes
+      description: Retrieve a list of all notes.
+      responses:
+        '200':
+          description: Notes returned successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Note'
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - Notes
+      summary: Create a note
+      description: Create a new note.
+      requestBody:
+        description: The note object to create.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Note'
+      responses:
+        '201':
+          description: Note created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Note'
+        '400':
+          $ref: '#/components/responses/InvalidInput'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /notes/{id}:
+    get:
+      tags:
+        - Notes
+      summary: Get a note by ID
+      description: Retrieve a single note by its ID.
+      parameters:
+        - $ref: '#/components/parameters/NoteId'
+      responses:
+        '200':
+          description: Note found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Note'
+        '400':
+          $ref: '#/components/responses/InvalidInput'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      security:
+        - bearerAuth: []
+      tags:
+        - Notes
+      summary: Update a note
+      description: Update a single note by its ID.
+      parameters:
+        - $ref: '#/components/parameters/NoteId'
+      requestBody:
+        description: Fields to update for the note.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Note'
+      responses:
+        '200':
+          description: Note updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Note'
+        '400':
+          $ref: '#/components/responses/InvalidInput'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      security:
+        - bearerAuth: []
+      tags:
+        - Notes
+      summary: Delete a note
+      description: Delete a single note by its ID.
+      parameters:
+        - $ref: '#/components/parameters/NoteId'
+      responses:
+        '204':
+          description: Note deleted successfully
+        '400':
+          $ref: '#/components/responses/InvalidId'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /notes/{id}/tags:
+    get:
+      tags:
+        - Note Tags
+      summary: List tags for a note
+      description: Retrieve tags associated with a note.
+      parameters:
+        - $ref: '#/components/parameters/NoteId'
+      responses:
+        '200':
+          description: Note tags returned successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Tag'
+        '400':
+          $ref: '#/components/responses/InvalidInput'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - Note Tags
+      summary: Attach a tag to a note
+      description: Attach a tag to a specific note.
+      parameters:
+        - $ref: '#/components/parameters/NoteId'
+      requestBody:
+        description: The note tag association to create.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NoteTag'
+      responses:
+        '201':
+          description: Note tag created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NoteTag'
+        '400':
+          $ref: '#/components/responses/InvalidInput'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Tag is already attached
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                example:
+                  error: 'Tag is already attached to this note'
+
+  /notes/{id}/tags/{id}:
+    delete:
+      security:
+        - bearerAuth: []
+      tags:
+        - Note Tags
+      summary: Remove a tag from a note
+      description: Remove a specific tag from a note.
+      parameters:
+        - $ref: '#/components/parameters/NoteId'
+        - $ref: '#/components/parameters/TagId'
+      responses:
+        '204':
+          description: Note tag removed successfully
+        '400':
+          $ref: '#/components/responses/InvalidId'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /tags:
+    get:
+      tags:
+        - Tags
+      summary: List tags
+      description: Retrieve a list of all tags.
+      responses:
+        '200':
+          description: Tags returned successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Tag'
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - Tags
+      summary: Create a tag
+      description: Create a new tag.
+      requestBody:
+        description: The tag object to create.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Tag'
+      responses:
+        '201':
+          description: Tag created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tag'
+        '400':
+          $ref: '#/components/responses/InvalidInput'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '409':
+          description: Tag already exists
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                example:
+                  error: 'Tag name already exists'
+
+  /tags/{id}:
+    get:
+      tags:
+        - Tags
+      summary: Get a tag by ID
+      description: Retrieve a single tag by its ID.
+      parameters:
+        - $ref: '#/components/parameters/TagId'
+      responses:
+        '200':
+          description: Tag found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tag'
+        '400':
+          $ref: '#/components/responses/InvalidInput'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      security:
+        - bearerAuth: []
+      tags:
+        - Tags
+      summary: Update a tag
+      description: Update a single tag by its ID.
+      parameters:
+        - $ref: '#/components/parameters/TagId'
+      requestBody:
+        description: Fields to update for the tag.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Tag'
+      responses:
+        '200':
+          description: Tag updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tag'
+        '400':
+          $ref: '#/components/responses/InvalidInput'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Tag already exists
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                example:
+                  error: 'Tag name already exists'
+    delete:
+      security:
+        - bearerAuth: []
+      tags:
+        - Tags
+      summary: Delete a tag
+      description: Delete a single tag by its ID.
+      parameters:
+        - $ref: '#/components/parameters/TagId'
+      responses:
+        '204':
+          description: Tag deleted successfully
+        '400':
+          $ref: '#/components/responses/InvalidId'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          example: 1
+        email:
+          type: string
+          example: "test@test.com"
+        role:
+          type: string
+          example: "USER"
+    AuthCredentials:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+      example:
+        email: "user@example.com"
+        password: "password123"
+    Board:
+      type: object
+      required:
+        - title
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          example: 1
+        title:
+          type: string
+          example: "My Board 1"
+        ownerId:
+          type: integer
+          readOnly: true
+          example: 1
+    BoardMember:
+      type: object
+      required:
+        - boardId
+        - userId
+      properties:
+        boardId:
+          type: integer
+          example: 1
+        userId:
+          type: integer
+          example: 2
+    Note:
+      type: object
+      required:
+        - content
+        - boardId
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          example: 1
+        content:
+          type: string
+          example: "Note content here"
+        boardId:
+          type: integer
+          example: 1
+        x_pos:
+          type: integer
+          example: 0
+        y_pos:
+          type: integer
+          example: 0
+        color:
+          type: string
+          example: "#FFFF88"
+    Tag:
+      type: object
+      required:
+        - name
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          example: 1
+        name:
+          type: string
+          example: "Urgent"
+    NoteTag:
+      type: object
+      required:
+        - noteId
+        - tagId
+      properties:
+        noteId:
+          type: integer
+          example: 1
+        tagId:
+          type: integer
+          example: 1
+
+  parameters:
+    BoardId:
+      name: id
+      in: path
+      required: true
+      description: Board ID
+      schema:
+        type: integer
+        example: 1
+    NoteId:
+      name: id
+      in: path
+      required: true
+      description: Note ID
+      schema:
+        type: integer
+        example: 1
+    TagId:
+      name: id
+      in: path
+      required: true
+      description: Tag ID
+      schema:
+        type: integer
+        example: 1
+    UserId:
+      name: uid
+      in: path
+      required: true
+      description: User ID
+      schema:
+        type: integer
+        example: 1
+
+  responses:
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+            example:
+              error: 'Resource 1 not found'
+    InvalidId:
+      description: Invalid ID
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              details:
+                type: array
+                items:
+                  type: string
+            example:
+              error: 'Validation failed'
+              details: ['ID must be a positive integer']
+    InvalidInput:
+      description: Bad request due to invalid data
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              details:
+                type: array
+                items:
+                  type: string
+            example:
+              error: 'Validation failed'
+              details:
+                - 'Title is required'
+    Forbidden:
+      description: Client is authenticated but not allowed to perform this action
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+            example:
+              error: 'Forbidden: insufficient permission.'
+    Unauthorized:
+      description: Client is not authenticated
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+            example:
+              error: 'Not authenticated. Please provide a valid token'
+    InvalidUserInput:
+      description: Bad request due to invalid user data
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              details:
+                type: array
+                items:
+                  type: string
+            example:
+              error: 'Validation failed'
+              details:
+                - 'Email is required'
+                - 'Password is required'
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
