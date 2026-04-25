@@ -6,9 +6,9 @@ info:
   description: API for managing boards, notes, tags, users, and join tables.
 
 servers:
-  - url: http://localhost:3000
+  - url: http://localhost:8080/api
     description: Local development server
-  - url: https://notetaker-hjnd.onrender.com
+  - url: https://notetaker-hjnd.onrender.com/api
     description: Production server
 
 tags:
