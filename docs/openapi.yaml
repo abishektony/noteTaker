@@ -266,7 +266,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/BoardMember'
+              $ref: '#/components/schemas/BoardMemberInput'
       responses:
         '201':
           description: Board member created successfully
@@ -465,7 +465,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/NoteTag'
+              $ref: '#/components/schemas/NoteTagInput'
       responses:
         '201':
           description: Note tag created successfully
@@ -748,6 +748,25 @@ components:
         noteId:
           type: integer
           example: 1
+        tagId:
+          type: integer
+          example: 1
+    BoardMemberInput:
+      type: object
+      required:
+        - userId
+      properties:
+        userId:
+          type: integer
+          example: 2
+        role:
+          type: string
+          example: "MEMBER"
+    NoteTagInput:
+      type: object
+      required:
+        - tagId
+      properties:
         tagId:
           type: integer
           example: 1

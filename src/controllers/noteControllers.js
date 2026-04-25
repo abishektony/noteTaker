@@ -71,8 +71,8 @@ export async function getNoteTagsHandler(req, res, next) {
 export async function addNoteTagHandler(req, res, next) {
 	try {
 		const id = Number(req.params.id);
-		const tagId = Number(req.params.tid);
-		const tag = await addNoteTag(id, tagId);
+		const { tagId } = req.body;
+		const tag = await addNoteTag(id, Number(tagId));
 		res.status(201).json(tag);
 	} catch (err) {
 		next(err);

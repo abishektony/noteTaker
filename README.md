@@ -1,14 +1,19 @@
 # noteTaker API Testing Plan
 
-Example Testing Instructions
+Public Repository: https://github.com/abish-s/noteTaker
+Live API on Render: https://notetaker-hjnd.onrender.com
+Live API Documentation: https://notetaker-hjnd.onrender.com/api-docs
 
-## Setup
+## Testing Plan:
+
+### Setup
 
 1. Run `npm install`.
 2. Run `npx prisma db push`.
 3. Run `npm run seed`.
 4. Run `npm run dev`.
-5. Open Swagger UI at `http://localhost:3000/api-docs`.
+5. Open Swagger UI at `http://localhost:8080/api-docs`.
+
 
 Seeded Accounts
 
@@ -323,8 +328,8 @@ Success Case:
 
 ```json
 {
-  "boardId": 1,
-  "userId": 2
+  "userId": 2,
+  "role": "MEMBER"
 }
 ```
 
@@ -630,7 +635,6 @@ Success Case:
 
 ```json
 {
-  "noteId": 1,
   "tagId": 1
 }
 ```

@@ -18,7 +18,7 @@ export const validateNote = [
 
 export const validateNoteTag = [
 	param('id').isInt({ min: 1 }).withMessage('Note id must be a positive integer'),
-	param('tid').isInt({ min: 1 }).withMessage('Tag id must be a positive integer'),
+	body('tagId').isInt({ min: 1 }).withMessage('Tag id must be a positive integer'),
 	handleValidationErrors,
 ];
 
