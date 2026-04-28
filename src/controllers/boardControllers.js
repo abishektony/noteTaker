@@ -42,6 +42,12 @@ export async function createBoardHandler(req, res, next) {
 export async function updateBoardHandler(req, res, next) {
 	try {
 		const id = Number(req.params.id);
+		const existingBoard = await getBoardById(id);
+		if (existingBoard.ownerId !== req.user.id) {
+			const error = new Error('Forbidden: You are not the owner of this board');
+			error.status = 403;
+			throw error;
+		}
 		const board = await updateBoard(id, req.body);
 		res.json(board);
 	} catch (err) {
@@ -52,6 +58,12 @@ export async function updateBoardHandler(req, res, next) {
 export async function deleteBoardHandler(req, res, next) {
 	try {
 		const id = Number(req.params.id);
+		const existingBoard = await getBoardById(id);
+		if (existingBoard.ownerId !== req.user.id) {
+			const error = new Error('Forbidden: You are not the owner of this board');
+			error.status = 403;
+			throw error;
+		}
 		await deleteBoard(id);
 		res.status(204).send();
 	} catch (err) {

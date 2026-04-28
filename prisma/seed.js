@@ -38,12 +38,14 @@ async function main() {
 	const adminBoard = await prisma.board.create({
 		data: {
 			title: 'Admin Planning Board',
+			ownerId: admin.id,
 		},
 	});
 
 	const userBoard = await prisma.board.create({
 		data: {
 			title: 'Personal Study Board',
+			ownerId: user.id,
 		},
 	});
 
@@ -68,15 +70,15 @@ async function main() {
 	});
 
 	const urgentTag = await prisma.tags.create({
-		data: { name: 'Urgent' },
+		data: { name: 'Urgent', ownerId: admin.id },
 	});
 
 	const schoolTag = await prisma.tags.create({
-		data: { name: 'School' },
+		data: { name: 'School', ownerId: user.id },
 	});
 
 	const personalTag = await prisma.tags.create({
-		data: { name: 'Personal' },
+		data: { name: 'Personal', ownerId: user.id },
 	});
 
 	const adminNote = await prisma.notes.create({

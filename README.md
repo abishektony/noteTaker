@@ -10,14 +10,15 @@ Live API Documentation: https://notetaker-hjnd.onrender.com/api-docs
 
 1. Run `npm install`.
 2. Run `npx prisma db push`.
-3. Run `npm run seed`.
-4. Run `npm run dev`.
-5. Open Swagger UI at `http://localhost:8080/api-docs`.
+3. Run `npx prisma generate`.
+4. Run `npm run seed`.
+5. Run `npm run dev`.
+6. Open Swagger UI at `http://localhost:8080/api-docs`.
 
 
 Seeded Accounts
 
-- Email: `admin@notetaker.local`
+C- Email: `admin@notetaker.local`
 - Password: `AdminPass123!`
 - Email: `user@notetaker.local`
 - Password: `UserPass123!`
@@ -837,6 +838,12 @@ Success Case:
 1. Use non-existent ID `9999`
 2. Click Execute
 3. Expect 404 Not Found
+
+403 Forbidden:
+
+1. Use JWT from account without permission
+2. Click Execute
+3. Expect 403 Forbidden
 
 409 Conflict:
 
