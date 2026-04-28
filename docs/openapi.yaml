@@ -690,6 +690,11 @@ components:
           type: integer
           readOnly: true
           example: 1
+        createdAt:
+          type: string
+          format: date-time
+          readOnly: true
+          example: 2024-12-09T22:08:07Z
     BoardMember:
       type: object
       required:
@@ -739,6 +744,15 @@ components:
         name:
           type: string
           example: "Urgent"
+        ownerId:
+          type: integer
+          readOnly: true
+          example: 1
+        createdAt:
+          type: string
+          format: date-time
+          readOnly: true
+          example: 2024-12-09T22:08:07Z
     NoteTag:
       type: object
       required:
