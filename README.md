@@ -18,10 +18,10 @@ Live API Documentation: https://notetaker-hjnd.onrender.com/api-docs
 
 Seeded Accounts
 
-C- Email: `admin@notetaker.local`
-- Password: `AdminPass123!`
-- Email: `user@notetaker.local`
-- Password: `UserPass123!`
+- Email: `admin@notetaker.local` (User ID: 1)
+  - Password: `AdminPass123!`
+- Email: `user@notetaker.local` (User ID: 2)
+  - Password: `UserPass123!`
 
 JWT Setup (for protected routes)
 
@@ -165,7 +165,7 @@ Access Control: Authenticated user (JWT required)
 
 Setup:
 
-1. Login and add JWT using Swagger Authorize
+1. Login as `admin@notetaker.local` and add JWT using Swagger Authorize
 
 Success Case:
 
@@ -201,7 +201,7 @@ Access Control: Authenticated user (JWT required)
 
 Setup:
 
-1. Login and add JWT using Swagger Authorize
+1. Login as `admin@notetaker.local` (Owner of Board 1) and add JWT using Swagger Authorize
 
 Success Case:
 
@@ -250,7 +250,7 @@ Access Control: Authenticated user (JWT required)
 
 Setup:
 
-1. Login and add JWT using Swagger Authorize
+1. Login as `admin@notetaker.local` (Owner of Board 1) and add JWT using Swagger Authorize
 
 Success Case:
 
@@ -282,6 +282,356 @@ Success Case:
 1. Use non-existent ID `9999`
 2. Click Execute
 3. Expect 404 Not Found
+
+## GET /api/notes
+
+Access Control: Public (any user can access)
+
+Success Case:
+
+1. Click Try it out
+2. Click Execute
+3. Expect response:
+
+```json
+[
+  { "id": 1, "content": "Note content here", "boardId": 1, "x_pos": 0, "y_pos": 0, "color": "#FFFF88" },
+  { "id": 2, "content": "Another note", "boardId": 1, "x_pos": 100, "y_pos": 150, "color": "#FFFF88" }
+]
+```
+
+## GET /api/notes/{id}
+
+Access Control: Public (any user can access)
+
+Success Case:
+
+1. Use existing note ID (example: `1`)
+2. Click Try it out
+3. Click Execute
+4. Expect response:
+
+```json
+{ "id": 1, "content": "Note content here", "boardId": 1, "x_pos": 0, "y_pos": 0, "color": "#FFFF88" }
+```
+
+400 Bad Request:
+
+1. Use invalid ID (example: `-10`)
+2. Click Execute
+3. Expect 400 Bad Request
+
+404 Not Found:
+
+1. Use non-existent ID `9999`
+2. Click Execute
+3. Expect 404 Not Found
+
+## POST /api/notes
+
+Access Control: Authenticated user (JWT required)
+
+Setup:
+
+1. Login as `admin@notetaker.local` and add JWT using Swagger Authorize
+
+Success Case:
+
+1. Click Try it out
+2. Send body:
+
+```json
+{
+  "boardId": 1,
+  "content": "New sticky note",
+  "x_pos": 120,
+  "y_pos": 200,
+  "color": "#FFFF88"
+}
+```
+
+3. Click Execute
+4. Expect response:
+
+```json
+{ "id": 5, "content": "New sticky note", "boardId": 1, "x_pos": 120, "y_pos": 200, "color": "#FFFF88" }
+```
+
+400 Bad Request:
+
+1. Remove required field (for example `content`)
+2. Click Execute
+3. Expect 400 Bad Request
+
+401 Unauthorized:
+
+1. Remove JWT
+2. Click Execute
+3. Expect 401 Unauthorized
+
+## PUT /api/notes/{id}
+
+Access Control: Authenticated user (JWT required)
+
+Setup:
+
+1. Login as `admin@notetaker.local` and add JWT using Swagger Authorize
+
+Success Case:
+
+1. Use existing note ID (example: `1`)
+2. Click Try it out
+3. Send body:
+
+```json
+{
+  "content": "Updated note content",
+  "boardId": 1,
+  "x_pos": 50,
+  "y_pos": 75,
+  "color": "#FFFF88"
+}
+```
+
+4. Click Execute
+5. Expect response:
+
+```json
+{ "id": 1, "content": "Updated note content", "boardId": 1, "x_pos": 50, "y_pos": 75, "color": "#FFFF88" }
+```
+
+400 Bad Request:
+
+1. Use invalid ID or invalid request body
+2. Click Execute
+3. Expect 400 Bad Request
+
+401 Unauthorized:
+
+1. Remove JWT
+2. Click Execute
+3. Expect 401 Unauthorized
+
+404 Not Found:
+
+1. Use non-existent note ID `9999`
+2. Click Execute
+3. Expect 404 Not Found
+
+## DELETE /api/notes/{id}
+
+Access Control: Authenticated user (JWT required)
+
+Setup:
+
+1. Login as `admin@notetaker.local` and add JWT using Swagger Authorize
+
+Success Case:
+
+1. Use existing note ID
+2. Click Try it out
+3. Click Execute
+4. Expect 204 No Content
+
+400 Bad Request:
+
+1. Use invalid ID
+2. Click Execute
+3. Expect 400 Bad Request
+
+401 Unauthorized:
+
+1. Remove JWT
+2. Click Execute
+3. Expect 401 Unauthorized
+
+404 Not Found:
+
+1. Use non-existent note ID `9999`
+2. Click Execute
+3. Expect 404 Not Found
+
+## GET /api/tags
+
+Access Control: Public (any user can access)
+
+Success Case:
+
+1. Click Try it out
+2. Click Execute
+3. Expect response:
+
+```json
+[
+  { "id": 1, "name": "Urgent" },
+  { "id": 2, "name": "Work" }
+]
+```
+
+## GET /api/tags/{id}
+
+Access Control: Public (any user can access)
+
+Success Case:
+
+1. Use existing tag ID (example: `1`)
+2. Click Try it out
+3. Click Execute
+4. Expect response:
+
+```json
+{ "id": 1, "name": "Urgent" }
+```
+
+400 Bad Request:
+
+1. Use invalid ID
+2. Click Execute
+3. Expect 400 Bad Request
+
+404 Not Found:
+
+1. Use non-existent ID `9999`
+2. Click Execute
+3. Expect 404 Not Found
+
+## POST /api/tags
+
+Access Control: Authenticated user (JWT required)
+
+Setup:
+
+1. Login as `admin@notetaker.local` and add JWT using Swagger Authorize
+
+Success Case:
+
+1. Click Try it out
+2. Send body:
+
+```json
+{ "name": "Work" }
+```
+
+3. Click Execute
+4. Expect response:
+
+```json
+{ "id": 3, "name": "Work" }
+```
+
+400 Bad Request:
+
+1. Remove required field `name`
+2. Click Execute
+3. Expect 400 Bad Request
+
+401 Unauthorized:
+
+1. Remove JWT
+2. Click Execute
+3. Expect 401 Unauthorized
+
+409 Conflict:
+
+1. Try to create duplicate tag name
+2. Click Execute
+3. Expect 409 Conflict
+
+## PUT /api/tags/{id}
+
+Access Control: Authenticated user (JWT required)
+
+Setup:
+
+1. Login as `admin@notetaker.local` (Owner of Tag 1) and add JWT using Swagger Authorize
+
+Success Case:
+
+1. Use existing tag ID (example: `1`)
+2. Click Try it out
+3. Send body:
+
+```json
+{ "name": "Updated Tag" }
+```
+
+4. Click Execute
+5. Expect response:
+
+```json
+{ "id": 1, "name": "Updated Tag" }
+```
+
+400 Bad Request:
+
+1. Use invalid ID or malformed body
+2. Click Execute
+3. Expect 400 Bad Request
+
+401 Unauthorized:
+
+1. Remove JWT
+2. Click Execute
+3. Expect 401 Unauthorized
+
+404 Not Found:
+
+1. Use non-existent ID `9999`
+2. Click Execute
+3. Expect 404 Not Found
+
+403 Forbidden:
+
+1. Use JWT from account without permission
+2. Click Execute
+3. Expect 403 Forbidden
+
+409 Conflict:
+
+1. Rename tag to an already existing tag name
+2. Click Execute
+3. Expect 409 Conflict
+
+## DELETE /api/tags/{id}
+
+Access Control: Authenticated user (JWT required)
+
+Setup:
+
+1. Login as `admin@notetaker.local` (Owner of Tag 1) and add JWT using Swagger Authorize
+
+Success Case:
+
+1. Use existing tag ID
+2. Click Try it out
+3. Click Execute
+4. Expect 204 No Content
+
+400 Bad Request:
+
+1. Use invalid ID
+2. Click Execute
+3. Expect 400 Bad Request
+
+401 Unauthorized:
+
+1. Remove JWT
+2. Click Execute
+3. Expect 401 Unauthorized
+
+403 Forbidden:
+
+1. Use JWT from account without permission
+2. Click Execute
+3. Expect 403 Forbidden
+
+404 Not Found:
+
+1. Use non-existent ID `9999`
+2. Click Execute
+3. Expect 404 Not Found
+
+## Extra Endpoints
 
 ## GET /api/boards/{id}/members
 
@@ -319,7 +669,7 @@ Access Control: Authenticated user (JWT required)
 
 Setup:
 
-1. Login and add JWT using Swagger Authorize
+1. Login as `admin@notetaker.local` and add JWT using Swagger Authorize
 
 Success Case:
 
@@ -377,7 +727,7 @@ Access Control: Authenticated user (JWT required)
 
 Setup:
 
-1. Login and add JWT using Swagger Authorize
+1. Login as `admin@notetaker.local` and add JWT using Swagger Authorize
 
 Success Case:
 
@@ -410,185 +760,6 @@ Success Case:
 2. Click Execute
 3. Expect 404 Not Found
 
-## GET /api/notes
-
-Access Control: Public (any user can access)
-
-Success Case:
-
-1. Click Try it out
-2. Click Execute
-3. Expect response:
-
-```json
-[
-  { "id": 1, "content": "Note content here", "boardId": 1, "x_pos": 0, "y_pos": 0, "color": "#FFFF88" },
-  { "id": 2, "content": "Another note", "boardId": 1, "x_pos": 100, "y_pos": 150, "color": "#FFFF88" }
-]
-```
-
-## GET /api/notes/{id}
-
-Access Control: Public (any user can access)
-
-Success Case:
-
-1. Use existing note ID (example: `1`)
-2. Click Try it out
-3. Click Execute
-4. Expect response:
-
-```json
-{ "id": 1, "content": "Note content here", "boardId": 1, "x_pos": 0, "y_pos": 0, "color": "#FFFF88" }
-```
-
-400 Bad Request:
-
-1. Use invalid ID (example: `-10`)
-2. Click Execute
-3. Expect 400 Bad Request
-
-404 Not Found:
-
-1. Use non-existent ID `9999`
-2. Click Execute
-3. Expect 404 Not Found
-
-## POST /api/notes
-
-Access Control: Authenticated user (JWT required)
-
-Setup:
-
-1. Login and add JWT using Swagger Authorize
-
-Success Case:
-
-1. Click Try it out
-2. Send body:
-
-```json
-{
-  "boardId": 1,
-  "content": "New sticky note",
-  "x_pos": 120,
-  "y_pos": 200,
-  "color": "#FFFF88"
-}
-```
-
-3. Click Execute
-4. Expect response:
-
-```json
-{ "id": 5, "content": "New sticky note", "boardId": 1, "x_pos": 120, "y_pos": 200, "color": "#FFFF88" }
-```
-
-400 Bad Request:
-
-1. Remove required field (for example `content`)
-2. Click Execute
-3. Expect 400 Bad Request
-
-401 Unauthorized:
-
-1. Remove JWT
-2. Click Execute
-3. Expect 401 Unauthorized
-
-## PUT /api/notes/{id}
-
-Access Control: Authenticated user (JWT required)
-
-Setup:
-
-1. Login and add JWT using Swagger Authorize
-
-Success Case:
-
-1. Use existing note ID (example: `1`)
-2. Click Try it out
-3. Send body:
-
-```json
-{
-  "content": "Updated note content",
-  "boardId": 1,
-  "x_pos": 50,
-  "y_pos": 75,
-  "color": "#FFFF88"
-}
-```
-
-4. Click Execute
-5. Expect response:
-
-```json
-{ "id": 1, "content": "Updated note content", "boardId": 1, "x_pos": 50, "y_pos": 75, "color": "#FFFF88" }
-```
-
-400 Bad Request:
-
-1. Use invalid ID or invalid request body
-2. Click Execute
-3. Expect 400 Bad Request
-
-401 Unauthorized:
-
-1. Remove JWT
-2. Click Execute
-3. Expect 401 Unauthorized
-
-403 Forbidden:
-
-1. Use JWT from account without permission
-2. Click Execute
-3. Expect 403 Forbidden
-
-404 Not Found:
-
-1. Use non-existent note ID `9999`
-2. Click Execute
-3. Expect 404 Not Found
-
-## DELETE /api/notes/{id}
-
-Access Control: Authenticated user (JWT required)
-
-Setup:
-
-1. Login and add JWT using Swagger Authorize
-
-Success Case:
-
-1. Use existing note ID
-2. Click Try it out
-3. Click Execute
-4. Expect 204 No Content
-
-400 Bad Request:
-
-1. Use invalid ID
-2. Click Execute
-3. Expect 400 Bad Request
-
-401 Unauthorized:
-
-1. Remove JWT
-2. Click Execute
-3. Expect 401 Unauthorized
-
-403 Forbidden:
-
-1. Use JWT from account without permission
-2. Click Execute
-3. Expect 403 Forbidden
-
-404 Not Found:
-
-1. Use non-existent note ID `9999`
-2. Click Execute
-3. Expect 404 Not Found
 
 ## GET /api/notes/{id}/tags
 
@@ -626,7 +797,7 @@ Access Control: Authenticated user (JWT required)
 
 Setup:
 
-1. Login and add JWT using Swagger Authorize
+1. Login as `admin@notetaker.local` and add JWT using Swagger Authorize
 
 Success Case:
 
@@ -677,7 +848,7 @@ Access Control: Authenticated user (JWT required)
 
 Setup:
 
-1. Login and add JWT using Swagger Authorize
+1. Login as `admin@notetaker.local` and add JWT using Swagger Authorize
 
 Success Case:
 
@@ -698,194 +869,8 @@ Success Case:
 2. Click Execute
 3. Expect 401 Unauthorized
 
-403 Forbidden:
-
-1. Use JWT from account without permission
-2. Click Execute
-3. Expect 403 Forbidden
-
 404 Not Found:
 
 1. Use non-existent note/tag pair
-2. Click Execute
-3. Expect 404 Not Found
-
-## GET /api/tags
-
-Access Control: Public (any user can access)
-
-Success Case:
-
-1. Click Try it out
-2. Click Execute
-3. Expect response:
-
-```json
-[
-  { "id": 1, "name": "Urgent" },
-  { "id": 2, "name": "Work" }
-]
-```
-
-## GET /api/tags/{id}
-
-Access Control: Public (any user can access)
-
-Success Case:
-
-1. Use existing tag ID (example: `1`)
-2. Click Try it out
-3. Click Execute
-4. Expect response:
-
-```json
-{ "id": 1, "name": "Urgent" }
-```
-
-400 Bad Request:
-
-1. Use invalid ID
-2. Click Execute
-3. Expect 400 Bad Request
-
-404 Not Found:
-
-1. Use non-existent ID `9999`
-2. Click Execute
-3. Expect 404 Not Found
-
-## POST /api/tags
-
-Access Control: Authenticated user (JWT required)
-
-Setup:
-
-1. Login and add JWT using Swagger Authorize
-
-Success Case:
-
-1. Click Try it out
-2. Send body:
-
-```json
-{ "name": "Work" }
-```
-
-3. Click Execute
-4. Expect response:
-
-```json
-{ "id": 3, "name": "Work" }
-```
-
-400 Bad Request:
-
-1. Remove required field `name`
-2. Click Execute
-3. Expect 400 Bad Request
-
-401 Unauthorized:
-
-1. Remove JWT
-2. Click Execute
-3. Expect 401 Unauthorized
-
-409 Conflict:
-
-1. Try to create duplicate tag name
-2. Click Execute
-3. Expect 409 Conflict
-
-## PUT /api/tags/{id}
-
-Access Control: Authenticated user (JWT required)
-
-Setup:
-
-1. Login and add JWT using Swagger Authorize
-
-Success Case:
-
-1. Use existing tag ID (example: `1`)
-2. Click Try it out
-3. Send body:
-
-```json
-{ "name": "Updated Tag" }
-```
-
-4. Click Execute
-5. Expect response:
-
-```json
-{ "id": 1, "name": "Updated Tag" }
-```
-
-400 Bad Request:
-
-1. Use invalid ID or malformed body
-2. Click Execute
-3. Expect 400 Bad Request
-
-401 Unauthorized:
-
-1. Remove JWT
-2. Click Execute
-3. Expect 401 Unauthorized
-
-404 Not Found:
-
-1. Use non-existent ID `9999`
-2. Click Execute
-3. Expect 404 Not Found
-
-403 Forbidden:
-
-1. Use JWT from account without permission
-2. Click Execute
-3. Expect 403 Forbidden
-
-409 Conflict:
-
-1. Rename tag to an already existing tag name
-2. Click Execute
-3. Expect 409 Conflict
-
-## DELETE /api/tags/{id}
-
-Access Control: Authenticated user (JWT required)
-
-Setup:
-
-1. Login and add JWT using Swagger Authorize
-
-Success Case:
-
-1. Use existing tag ID
-2. Click Try it out
-3. Click Execute
-4. Expect 204 No Content
-
-400 Bad Request:
-
-1. Use invalid ID
-2. Click Execute
-3. Expect 400 Bad Request
-
-401 Unauthorized:
-
-1. Remove JWT
-2. Click Execute
-3. Expect 401 Unauthorized
-
-403 Forbidden:
-
-1. Use JWT from account without permission
-2. Click Execute
-3. Expect 403 Forbidden
-
-404 Not Found:
-
-1. Use non-existent ID `9999`
 2. Click Execute
 3. Expect 404 Not Found
